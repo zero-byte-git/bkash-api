@@ -60,3 +60,74 @@ class BkashAPI:
         }
         response = requests.post(url, headers=headers, json={"paymentID": payment_id})
         return response.json()
+
+    def create_agreement(self, payer_reference):
+        """Create a recurring payment agreement. Uses mode 0011 (tokenized checkout)."""
+        url = f"{self.base_url}/tokenized/checkout/create"
+        headers = {
+            "Content-Type": "application/json",
+            "authorization": self.token,
+            "x-app-key": self.app_key,
+        }
+        data = {
+            "mode": "0011",
+            "payerReference": payer_reference,
+            "callbackURL": settings.BKASH_CALLBACK_URL,
+            "intent": "sale",
+        }
+        response = requests.post(url, headers=headers, json=data)
+        return response.json()
+
+    def execute_agreement(self, payment_id):
+        """Execute/confirm an agreement after user approval."""
+        url = f"{self.base_url}/tokenized/checkout/execute"
+        headers = {
+            "Content-Type": "application/json",
+            "authorization": self.token,
+            "x-app-key": self.app_key,
+        }
+        response = requests.post(url, headers=headers, json={"paymentID": payment_id})
+        return response.json()
+
+    def query_agreement(self, agreement_id):
+        """Query the status of an agreement."""
+        url = f"{self.base_url}/tokenized/checkout/agreement/status"
+        headers = {
+            "Content-Type": "application/json",
+            "authorization": self.token,
+            "x-app-key": self.app_key,
+        }
+        response = requests.post(url, headers=headers, json={"agreementID": agreement_id})
+        return response.json()
+
+    def cancel_agreement(self, agreement_id):
+        """Cancel an active agreement."""
+        url = f"{self.base_url}/tokenized/checkout/agreement/cancel"
+        headers = {
+            "Content-Type": "application/json",
+            "authorization": self.token,
+            "x-app-key": self.app_key,
+        }
+        response = requests.post(url, headers=headers, json={"agreementID": agreement_id})
+        return response.json()
+
+    def create_recurring_payment(self, agreement_id, payer_reference, amount, invoice):
+        """Charge against an existing agreement (tokenized checkout with agreementID)."""
+        url = f"{self.base_url}/tokenized/checkout/create"
+        headers = {
+            "Content-Type": "application/json",
+            "authorization": self.token,
+            "x-app-key": self.app_key,
+        }
+        data = {
+            "mode": "0011",
+            "agreementID": agreement_id,
+            "payerReference": payer_reference,
+            "callbackURL": settings.BKASH_CALLBACK_URL,
+            "amount": str(amount),
+            "currency": "BDT",
+            "intent": "sale",
+            "merchantInvoiceNumber": invoice,
+        }
+        response = requests.post(url, headers=headers, json=data)
+        return response.json()
