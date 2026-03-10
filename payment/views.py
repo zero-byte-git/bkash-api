@@ -87,6 +87,7 @@ class BkashRecurringPaymentView(APIView):
             bkash = BkashAPI()
             result = bkash.create_recurring_payment(
                 agreement_id=serializer.validated_data["agreement_id"],
+                payer_reference=serializer.validated_data["payer_reference"],
                 amount=serializer.validated_data["amount"],
                 invoice=serializer.validated_data["invoice"],
             )

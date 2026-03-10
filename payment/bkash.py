@@ -62,7 +62,7 @@ class BkashAPI:
         return response.json()
 
     def create_agreement(self, payer_reference):
-        """Create a recurring payment agreement (mode 0000)."""
+        """Create a recurring payment agreement. Uses mode 0011 (tokenized checkout)."""
         url = f"{self.base_url}/tokenized/checkout/create"
         headers = {
             "Content-Type": "application/json",
@@ -70,13 +70,10 @@ class BkashAPI:
             "x-app-key": self.app_key,
         }
         data = {
-            "mode": "0000",
+            "mode": "0011",
             "payerReference": payer_reference,
             "callbackURL": settings.BKASH_CALLBACK_URL,
-            "amount": "0",
-            "currency": "BDT",
             "intent": "sale",
-            "merchantInvoiceNumber": "agreement",
         }
         response = requests.post(url, headers=headers, json=data)
         return response.json()
@@ -114,8 +111,8 @@ class BkashAPI:
         response = requests.post(url, headers=headers, json={"agreementID": agreement_id})
         return response.json()
 
-    def create_recurring_payment(self, agreement_id, amount, invoice):
-        """Charge against an existing agreement (mode 0001)."""
+    def create_recurring_payment(self, agreement_id, payer_reference, amount, invoice):
+        """Charge against an existing agreement (tokenized checkout with agreementID)."""
         url = f"{self.base_url}/tokenized/checkout/create"
         headers = {
             "Content-Type": "application/json",
@@ -123,9 +120,9 @@ class BkashAPI:
             "x-app-key": self.app_key,
         }
         data = {
-            "mode": "0001",
+            "mode": "0011",
             "agreementID": agreement_id,
-            "payerReference": " ",
+            "payerReference": payer_reference,
             "callbackURL": settings.BKASH_CALLBACK_URL,
             "amount": str(amount),
             "currency": "BDT",

@@ -12,5 +12,6 @@ class AgreementCreateSerializer(serializers.Serializer):
 
 class RecurringPaymentSerializer(serializers.Serializer):
     agreement_id = serializers.CharField()
+    payer_reference = serializers.CharField()
     amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     invoice = serializers.CharField()
